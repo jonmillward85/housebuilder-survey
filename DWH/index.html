@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Concept Survey</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f0f1f4;
+  --surface: #ffffff;
+  --text: #1a1a2e;
+  --muted: #6b6b80;
+  --accent: #1a6b4a;
+  --accent-hover: #145a3d;
+  --accent-light: #e6f4ec;
+  --accent-bg: #d0ead9;
+  --border: #d0d3da;
+  --error: #dc3545;
+  --radius: 8px;
+  --shadow: 0 1px 8px rgba(0,0,0,0.07);
+  --shadow-lg: 0 6px 24px rgba(0,0,0,0.12);
+  --ease: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+.wrap { max-width: 880px; margin: 0 auto; padding: 20px 16px 80px; }
+
+/* Progress */
+.progress-track {
+  width: 100%; height: 6px; background: #d0d3da;
+  border-radius: 3px; margin-bottom: 24px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%; background: var(--accent);
+  border-radius: 3px; transition: width 0.5s ease;
+}
+
+/* Screens */
+.screen { display: none; opacity: 0; transition: opacity var(--ease); }
+.screen.active { display: block; }
+.screen.visible { opacity: 1; }
+
+/* Typography */
+h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 12px; }
+h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
+.subtitle { font-size: 1rem; color: var(--text); margin-bottom: 20px; max-width: 640px; line-height: 1.65; }
+
+.step-pill {
+  display: inline-block;
+  font-size: 0.78rem; color: var(--accent); text-transform: uppercase;
+  letter-spacing: 0.08em; font-weight: 700; margin-bottom: 10px;
+  background: var(--accent-light); padding: 5px 14px; border-radius: 4px;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 14px 36px; font-size: 1.05rem; font-weight: 700; font-family: var(--font);
+  border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-hover); box-shadow: 0 4px 14px rgba(26,107,74,0.3); }
+
+/* Intro list */
+.intro-list {
+  list-style: none; padding: 0; margin: 16px 0 20px;
+  max-width: 640px;
+}
+.intro-list li {
+  position: relative; padding-left: 24px; margin-bottom: 10px;
+  font-size: 1rem; line-height: 1.6; color: var(--text);
+}
+.intro-list li::before {
+  content: '\2022'; position: absolute; left: 8px;
+  color: var(--accent); font-weight: 700;
+}
+
+/* ==================== PARTICIPANT ID SCREEN ==================== */
+.id-form {
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  padding: 28px 24px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.id-form label {
+  display: block;
+  font-size: 1rem; font-weight: 600; color: var(--text);
+  margin-bottom: 12px; text-align: left;
+}
+.id-form input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 1rem; font-family: var(--font);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 8px;
+}
+.id-form input[type="text"]:focus { border-color: var(--accent); }
+.id-form input[type="text"]::placeholder { color: #b0b3be; }
+.id-form .id-error {
+  font-size: 0.85rem; color: var(--error); font-weight: 600;
+  margin-bottom: 12px; display: none;
+}
+.id-form .id-error.show { display: block; }
+
+/* ==================== COMPLETION SCREEN ==================== */
+.completion-card {
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  padding: 32px 24px;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+.completion-card .code-box {
+  display: inline-block;
+  background: var(--accent-light);
+  border: 2px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  margin: 16px 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+.completion-card .fallback {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 16px;
+}
+
+/* ==================== CONCEPT CARD ==================== */
+.concept-card {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+.concept-card.chosen {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg), var(--shadow-lg);
+}
+
+.concept-label-banner {
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.1rem; font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.concept-img-wrap {
+  position: relative; cursor: pointer;
+}
+.concept-img-wrap img { display: block; width: 100%; height: auto; }
+.concept-img-wrap .zoom-hint {
+  position: absolute; bottom: 10px; right: 10px;
+  background: rgba(0,0,0,0.65); color: #fff;
+  font-size: 0.78rem; font-weight: 600;
+  padding: 5px 12px; border-radius: 5px;
+  pointer-events: none;
+  display: flex; align-items: center; gap: 5px;
+}
+.concept-img-wrap .zoom-hint svg { width: 14px; height: 14px; fill: #fff; }
+
+/* ==================== LIKERT BLOCK ==================== */
+.likert-block {
+  padding: 16px;
+  background: #f8f9fb;
+  border-top: 3px solid var(--accent);
+}
+.likert-block .likert-heading {
+  font-size: 0.95rem; font-weight: 700; color: var(--text);
+  letter-spacing: 0.01em;
+  margin-bottom: 14px;
+  padding: 8px 12px;
+  background: var(--accent-light);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+}
+.likert-row {
+  margin-bottom: 14px;
+}
+.likert-row:last-child { margin-bottom: 0; }
+.likert-label {
+  display: block;
+  font-size: 0.92rem; font-weight: 700; color: var(--text);
+  margin-bottom: 7px;
+}
+.likert-btns {
+  display: flex; gap: 5px;
+}
+.likert-btn {
+  flex: 1;
+  padding: 8px 4px; font-size: 0.76rem; font-weight: 600;
+  font-family: var(--font); border: 2px solid var(--border);
+  border-radius: 6px; background: var(--surface); color: var(--text);
+  cursor: pointer; transition: all 0.15s ease;
+  text-align: center; line-height: 1.3;
+}
+.likert-btn:hover { border-color: #999; background: #f0f0f0; }
+
+/* Likert selected states: green(SA) -> light green(A) -> grey(N) -> orange(D) -> red-grey(SD) */
+.likert-btn.sel-5 { border-color: #1a8a4a; background: #1a8a4a; color: #fff; }
+.likert-btn.sel-4 { border-color: #28a745; background: #28a745; color: #fff; }
+.likert-btn.sel-3 { border-color: #6c757d; background: #6c757d; color: #fff; }
+.likert-btn.sel-2 { border-color: #e67e22; background: #e67e22; color: #fff; }
+.likert-btn.sel-1 { border-color: #c0392b; background: #c0392b; color: #fff; }
+
+.likert-block.incomplete-shake { animation: shake 0.4s ease; }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+/* ==================== CONFIRMATION GATE ==================== */
+.confirm-gate {
+  padding: 20px 16px;
+  text-align: center;
+  background: #f8f9fb;
+  border-top: 3px solid var(--accent);
+}
+.confirm-gate p {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 12px 0;
+}
+.confirm-gate .btn-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 28px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--font);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.confirm-gate .btn-confirm:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 14px rgba(26,107,74,0.3);
+}
+.confirm-gate.hidden {
+  display: none;
+}
+.likert-block.gated {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s ease, max-height 0.5s ease;
+}
+.likert-block.gated.ungated {
+  opacity: 1;
+  max-height: 2000px;
+  pointer-events: auto;
+}
+
+/* ==================== STEPPED REVEAL ==================== */
+.step-reveal {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.6s ease, max-height 0.7s ease;
+  pointer-events: none;
+}
+.step-reveal.revealed {
+  opacity: 1;
+  max-height: 4000px;
+  pointer-events: auto;
+}
+
+/* Prompt arrow between steps */
+.step-prompt {
+  text-align: center;
+  padding: 12px 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.step-prompt.show { opacity: 1; }
+.step-prompt .prompt-text {
+  display: inline-block;
+  font-size: 0.9rem; font-weight: 700; color: var(--accent);
+  background: var(--accent-light);
+  padding: 8px 20px; border-radius: 20px;
+  animation: pulse 2s ease infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+}
+
+/* ==================== VS DIVIDER ==================== */
+.vs-section {
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px 0; gap: 16px;
+}
+.vs-section .line {
+  flex: 1; height: 2px;
+  background: linear-gradient(to right, transparent, #aaa, transparent);
+}
+.vs-badge {
+  width: 60px; height: 60px; border-radius: 50%;
+  background: linear-gradient(135deg, #2c2c3e, #1a1a2e);
+  color: #fff; font-size: 1.2rem; font-weight: 900;
+  letter-spacing: 0.06em;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  flex-shrink: 0;
+}
+
+/* ==================== CHOICE SECTION ==================== */
+.choice-section {
+  background: var(--surface);
+  border: 3px solid var(--accent);
+  border-radius: 12px;
+  padding: 28px 20px 28px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+.choice-section .choice-heading {
+  font-size: 1.2rem; font-weight: 800;
+  margin-bottom: 20px; color: var(--text); line-height: 1.45;
+}
+.choice-hint { font-size: 0.85rem; color: var(--muted); margin: -8px 0 16px; }
+.choice-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.btn-choose {
+  padding: 16px 32px; font-size: 1.1rem; font-weight: 800;
+  font-family: var(--font);
+  background: var(--accent-light); color: var(--accent);
+  border: 3px solid var(--accent); border-radius: var(--radius);
+  cursor: pointer; transition: all 0.2s ease; min-width: 180px;
+}
+.btn-choose:hover { background: var(--accent); color: #fff; }
+.btn-choose.selected {
+  background: var(--accent); color: #fff;
+  box-shadow: 0 4px 14px rgba(26,107,74,0.3); transform: scale(1.03);
+}
+.validation-msg {
+  font-size: 0.85rem; color: var(--error); font-weight: 600;
+  margin-top: 10px; display: none;
+}
+.validation-msg.show { display: block; }
+
+/* ==================== OPEN END ==================== */
+.open-section {
+  max-width: 600px; margin: 0 auto;
+  background: var(--surface);
+  border: 2px solid var(--border); border-radius: 10px;
+  padding: 22px 20px 24px; box-shadow: var(--shadow);
+}
+.open-section .open-heading {
+  font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; color: var(--text);
+}
+.open-section textarea {
+  width: 100%; min-height: 80px; padding: 12px 14px;
+  font-size: 0.95rem; font-family: var(--font);
+  border: 2px solid var(--border); border-radius: var(--radius);
+  resize: vertical; outline: none; transition: border-color 0.2s;
+}
+.open-section textarea:focus { border-color: var(--accent); }
+.open-section textarea::placeholder { color: #b0b3be; }
+.open-section .next-row {
+  display: flex; justify-content: space-between; align-items: center; margin-top: 16px;
+}
+
+/* ==================== LIGHTBOX ==================== */
+.lightbox {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92); z-index: 1000;
+  cursor: zoom-out; align-items: center; justify-content: center; padding: 12px;
+}
+.lightbox.open { display: flex; }
+.lightbox img { max-width: 97vw; max-height: 94vh; object-fit: contain; border-radius: 4px; }
+.lightbox-x {
+  position: fixed; top: 12px; right: 14px; z-index: 1001;
+  background: rgba(255,255,255,0.2); border: none; color: #fff;
+  font-size: 1.8rem; width: 44px; height: 44px; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+.lightbox-x:hover { background: rgba(255,255,255,0.4); }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .wrap { padding: 14px 10px 60px; }
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 1.12rem; }
+  .choice-btns { flex-direction: column; align-items: stretch; }
+  .btn-choose { min-width: auto; }
+  .vs-badge { width: 50px; height: 50px; font-size: 1rem; }
+  .likert-btn { font-size: 0.68rem; padding: 7px 2px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="progress-track">
+    <div class="progress-fill" id="progressBar"></div>
+  </div>
+
+  <!-- Screen 0: Participant ID -->
+  <div class="screen active" id="screen-0">
+    <h1>Welcome</h1>
+    <p class="subtitle">Please enter your Prolific participant ID to begin.</p>
+    <div class="id-form">
+      <label for="participant-id">Participant ID</label>
+      <input type="text" id="participant-id" placeholder="e.g. 5f3a2b1c..." autocomplete="off" spellcheck="false">
+      <div class="id-error" id="id-error">Please enter your participant ID to continue.</div>
+      <button class="btn btn-primary" onclick="submitParticipantId()" style="margin-top: 12px;">Start the survey &rarr;</button>
+    </div>
+  </div>
+
+  <!-- Screen 1: Orientation -->
+  <div class="screen" id="screen-1">
+    <h1>Help choose an advert</h1>
+    <p class="subtitle" style="font-weight: 600; color: var(--text);">
+      A major homebuilder is about to launch a new advertising campaign aimed at
+      people who are interested in new-build homes. They have several designs and
+      need to know which one works best. That's where you come in.
+    </p>
+    <p class="subtitle" style="margin-top:-8px;">With that in mind:</p>
+    <ul class="intro-list">
+      <li>You'll see <strong>3 pairs</strong> of adverts</li>
+      <li>Each advert has several panels &mdash; <strong>please look at the images, text, and how they work together</strong></li>
+      <li>In reality these would appear as a short animation (GIF), but here they're shown as a series of images so you can view each step clearly</li>
+      <li>For each pair, you'll pick which advert you think is <strong>more effective at delivering the homebuilder's message</strong></li>
+      <li>There are no right or wrong answers</li>
+    </ul>
+    <p class="subtitle" style="font-size:0.88rem; margin-top: -8px;">
+      You can tap any image to enlarge it.
+    </p>
+    <button class="btn btn-primary" onclick="goToScreen(2)" style="margin-top: 8px;">Show me the adverts</button>
+  </div>
+
+  <!-- Matchup screens built by JS (screens 2, 3, 4) -->
+  <div class="screen" id="screen-2"></div>
+  <div class="screen" id="screen-3"></div>
+  <div class="screen" id="screen-4"></div>
+
+  <!-- Screen 5: Completion -->
+  <div class="screen" id="screen-5">
+    <h1>Thank you!</h1>
+    <div class="completion-card">
+      <p class="subtitle" style="text-align: center; margin-bottom: 12px;">Your responses have been recorded. We really appreciate your time.</p>
+      <p class="subtitle" style="text-align: center; margin-bottom: 8px;">You can now return to Prolific by pressing the button below.</p>
+      <p style="font-size: 0.9rem; color: var(--muted); margin-bottom: 4px;">Your completion code (in case you need it):</p>
+      <div class="code-box" id="completion-code">XXXXXXXX</div>
+      <div style="margin-top: 20px;">
+        <a id="prolific-return-btn" class="btn btn-primary" href="#" target="_blank" rel="noopener" style="text-decoration: none;">Return to Prolific &rarr;</a>
+      </div>
+      <p class="fallback">If the button does not work, copy the completion code above and return to Prolific manually.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-x" onclick="closeLightbox()">&times;</button>
+  <img id="lightbox-img" src="" alt="Enlarged advert">
+</div>
+
+<script>
+// ===== CONFIG =====
+const BRAND = 'DWH';
+const BRAND_NAME = 'David Wilson Homes';
+const COMPLETION_CODE = 'XXXXXXXX'; // Replace with actual Prolific completion code
+const PROLIFIC_RETURN_URL = 'https://app.prolific.com/submissions/complete?cc=' + COMPLETION_CODE;
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzBlTebfyKHY2MLGSCFbZHRyfV-lJjT7KO04-NlTqueFw7fjEYlTLOMg8pl_qZWBqDvoQ/exec';
+
+// ===== DATA =====
+const concepts = [
+  { id: 0, label: 'Creative 19', image: 'images/creative-19.png' },
+  { id: 1, label: 'Creative 20', image: 'images/creative-20.png' },
+  { id: 2, label: 'Creative 21', image: 'images/creative-21.png' },
+  { id: 3, label: 'Creative 22', image: 'images/creative-22.png' },
+  { id: 4, label: 'Creative 23', image: 'images/creative-23.png' },
+  { id: 5, label: 'Creative 24', image: 'images/creative-24.png' }
+];
+
+const LIKERT_ITEMS = [
+  { key: 'eyecatching', label: 'This advert is eye-catching' },
+  { key: 'findoutmore', label: 'This advert makes me keen to find out more' },
+  { key: 'quality',     label: 'This advert makes ' + BRAND_NAME + ' feel like a quality homebuilder' }
+];
+
+const LIKERT_SCALE = [
+  { value: 5, label: 'Strongly agree', abbr: 'SA' },
+  { value: 4, label: 'Agree',          abbr: 'A' },
+  { value: 3, label: 'Neutral',        abbr: 'N' },
+  { value: 2, label: 'Disagree',       abbr: 'D' },
+  { value: 1, label: 'Strongly disagree', abbr: 'SD' }
+];
+
+// ===== ROUND-ROBIN ROTATIONS =====
+const rotationVersions = [
+  [{ a: 0, b: 1 }, { a: 2, b: 3 }, { a: 4, b: 5 }],
+  [{ a: 0, b: 2 }, { a: 1, b: 4 }, { a: 3, b: 5 }],
+  [{ a: 0, b: 3 }, { a: 1, b: 5 }, { a: 2, b: 4 }],
+  [{ a: 0, b: 4 }, { a: 1, b: 3 }, { a: 2, b: 5 }],
+  [{ a: 0, b: 5 }, { a: 1, b: 2 }, { a: 3, b: 4 }]
+];
+
+const versionIdx = Math.floor(Math.random() * rotationVersions.length);
+let matchups = rotationVersions[versionIdx].map(m => ({ ...m }));
+
+// Shuffle matchup order
+for (let i = matchups.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [matchups[i], matchups[j]] = [matchups[j], matchups[i]];
+}
+// Randomise within-pair order
+matchups.forEach(m => {
+  if (Math.random() < 0.5) { const t = m.a; m.a = m.b; m.b = t; }
+});
+
+// ===== STATE =====
+const surveyData = {
+  participantId: null,
+  sessionId: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+  brand: BRAND,
+  startTime: null,
+  endTime: null,
+  rotationVersion: versionIdx,
+  matchups: []
+};
+let currentScreen = 0;
+const TOTAL_SCREENS = 6; // 0=ID, 1=Orientation, 2-4=Matchups, 5=Completion
+
+// Per-matchup step state
+const stepState = {};
+// Track Likert answers: likertAnswers[matchIdx-side] = { eyecatching: 5, message: null, quality: null }
+const likertAnswers = {};
+
+// ===== PER-CONCEPT TIMING =====
+const viewTimers = {}; // viewTimers[matchIdx-side] = { conceptId, startTime, elapsed }
+
+function startViewTimer(matchIdx, side) {
+  const conceptId = side === 'a' ? matchups[matchIdx].a : matchups[matchIdx].b;
+  viewTimers[`${matchIdx}-${side}`] = {
+    conceptId: conceptId,
+    startTime: Date.now(),
+    elapsed: null
+  };
+}
+
+function stopViewTimer(matchIdx, side) {
+  const key = `${matchIdx}-${side}`;
+  if (viewTimers[key] && viewTimers[key].elapsed === null) {
+    viewTimers[key].elapsed = Date.now() - viewTimers[key].startTime;
+  }
+}
+
+// ===== STEP STATE =====
+function initStep(i) {
+  if (!stepState[i]) {
+    stepState[i] = {
+      aConfirmed: false,
+      aLikertDone: false,
+      bRevealed: false,
+      bConfirmed: false,
+      bLikertDone: false,
+      choiceRevealed: false, choiceDone: false,
+      openRevealed: false
+    };
+  }
+}
+
+function initLikert(matchIdx, side) {
+  const key = `${matchIdx}-${side}`;
+  if (!likertAnswers[key]) {
+    likertAnswers[key] = {};
+    LIKERT_ITEMS.forEach(item => { likertAnswers[key][item.key] = null; });
+  }
+}
+
+function allLikertDone(matchIdx, side) {
+  const key = `${matchIdx}-${side}`;
+  if (!likertAnswers[key]) return false;
+  return LIKERT_ITEMS.every(item => likertAnswers[key][item.key] !== null);
+}
+
+// ===== PARTICIPANT ID =====
+function submitParticipantId() {
+  const input = document.getElementById('participant-id');
+  const error = document.getElementById('id-error');
+  const val = input.value.trim();
+
+  if (!val) {
+    error.classList.add('show');
+    input.focus();
+    return;
+  }
+
+  error.classList.remove('show');
+  surveyData.participantId = val;
+  goToScreen(1);
+}
+
+// Allow Enter key to submit ID
+document.getElementById('participant-id').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') submitParticipantId();
+});
+
+// ===== BUILD LIKERT HTML =====
+function buildLikertBlock(matchIdx, side) {
+  const rows = LIKERT_ITEMS.map(item => {
+    const btns = LIKERT_SCALE.map(s =>
+      `<button class="likert-btn" onclick="setLikert(${matchIdx},'${side}','${item.key}',${s.value},this)" title="${s.label}">${s.label}</button>`
+    ).join('');
+    return `
+      <div class="likert-row" id="lr-${matchIdx}-${side}-${item.key}">
+        <span class="likert-label">${item.label}</span>
+        <div class="likert-btns">${btns}</div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="confirm-gate" id="gate-${matchIdx}-${side}">
+      <p>When you're ready, tap below to rate this advert.</p>
+      <button class="btn-confirm" onclick="confirmGate(${matchIdx},'${side}')">Rate this advert &rarr;</button>
+    </div>
+    <div class="likert-block gated" id="likert-${matchIdx}-${side}">
+      <div class="likert-heading">How well does each statement describe this advert?</div>
+      ${rows}
+    </div>`;
+}
+
+// ===== BUILD MATCHUP SCREENS =====
+function buildMatchups() {
+  matchups.forEach((m, i) => {
+    initStep(i);
+    initLikert(i, 'a');
+    initLikert(i, 'b');
+    const cA = concepts[m.a];
+    const cB = concepts[m.b];
+    const screenIdx = i + 2; // Matchup screens are 2, 3, 4
+    const el = document.getElementById(`screen-${screenIdx}`);
+
+    el.innerHTML = `
+      <div class="step-pill">Pair ${i + 1} of 3</div>
+
+      <!-- ===== ADVERT A ===== -->
+      <div class="concept-card" id="card-${i}-a">
+        <div class="concept-label-banner">Advert A</div>
+        <div class="concept-img-wrap" onclick="openLightbox('${cA.image}')">
+          <img src="${cA.image}" alt="Advert A">
+          <span class="zoom-hint">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            Tap to enlarge
+          </span>
+        </div>
+        ${buildLikertBlock(i, 'a')}
+      </div>
+
+      <!-- PROMPT TO CONTINUE -->
+      <div class="step-prompt" id="prompt-vs-${i}">
+        <span class="prompt-text">\u2193 Now take a look at the second advert \u2193</span>
+      </div>
+
+      <!-- ===== VS + ADVERT B (hidden initially) ===== -->
+      <div class="step-reveal" id="reveal-b-${i}">
+        <div class="vs-section">
+          <div class="line"></div>
+          <div class="vs-badge">VS</div>
+          <div class="line"></div>
+        </div>
+
+        <div class="concept-card" id="card-${i}-b">
+          <div class="concept-label-banner">Advert B</div>
+          <div class="concept-img-wrap" onclick="openLightbox('${cB.image}')">
+            <img src="${cB.image}" alt="Advert B">
+            <span class="zoom-hint">
+              <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              Tap to enlarge
+            </span>
+          </div>
+          ${buildLikertBlock(i, 'b')}
+        </div>
+      </div>
+
+      <!-- PROMPT TO CHOOSE -->
+      <div class="step-prompt" id="prompt-choice-${i}">
+        <span class="prompt-text">\u2193 Now make your choice \u2193</span>
+      </div>
+
+      <!-- ===== CHOICE (hidden initially) ===== -->
+      <div class="step-reveal" id="reveal-choice-${i}">
+        <div class="choice-section">
+          <p class="choice-heading">
+            Overall, which of these two adverts is more effective at getting across that ${BRAND_NAME} is a 5-star homebuilder?
+          </p>
+          <p class="choice-hint">Scroll up if you need a reminder of both.</p>
+          <div class="choice-btns" id="choice-btns-${i}">
+            <button class="btn-choose" id="choose-${i}-a" onclick="choose(${i},${m.a},'a')">Advert A</button>
+            <button class="btn-choose" id="choose-${i}-b" onclick="choose(${i},${m.b},'b')">Advert B</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== OPEN END (hidden initially) ===== -->
+      <div class="step-reveal" id="reveal-open-${i}">
+        <div class="open-section" style="margin-top: 24px;">
+          <p class="open-heading">In a few words, what made you choose that one over the other?</p>
+          <textarea id="reason-${i}" placeholder="There are no wrong answers \u2014 just say what came to mind..." rows="3"></textarea>
+          <div class="next-row">
+            <span class="validation-msg" id="val-open-${i}">Please write at least a few words.</span>
+            <button class="btn btn-primary" onclick="finishMatchup(${i})">${i < 2 ? 'Next pair \u2192' : 'Finish \u2192'}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+// ===== STEP PROGRESSION (3 gates) =====
+
+function revealNext(matchIdx) {
+  const s = stepState[matchIdx];
+
+  // Step 1: After A's 3 Likert items all answered -> reveal prompt, then B (staged)
+  if (s.aLikertDone && !s.bRevealed) {
+    s.bRevealed = true;
+
+    // Stage 1: Show the prompt text first
+    const prompt = document.getElementById(`prompt-vs-${matchIdx}`);
+    prompt.classList.add('show');
+
+    // Scroll to the prompt
+    setTimeout(() => {
+      prompt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+
+    // Stage 2: After a visible pause, reveal Advert B
+    setTimeout(() => {
+      const revealB = document.getElementById(`reveal-b-${matchIdx}`);
+      revealB.classList.add('revealed');
+
+      // Start view timer for B once it's revealed + transition done
+      setTimeout(() => {
+        startViewTimer(matchIdx, 'b');
+        revealB.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }, 1200);
+
+    return;
+  }
+
+  // Step 2: After B's 3 Likert items all answered -> reveal choice
+  if (s.bLikertDone && !s.choiceRevealed) {
+    s.choiceRevealed = true;
+    document.getElementById(`prompt-choice-${matchIdx}`).classList.add('show');
+    const revealChoice = document.getElementById(`reveal-choice-${matchIdx}`);
+    revealChoice.classList.add('revealed');
+    setTimeout(() => {
+      revealChoice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+    return;
+  }
+
+  // Step 3: After choice -> reveal open end
+  if (s.choiceDone && !s.openRevealed) {
+    s.openRevealed = true;
+    const revealOpen = document.getElementById(`reveal-open-${matchIdx}`);
+    revealOpen.classList.add('revealed');
+    setTimeout(() => {
+      revealOpen.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 200);
+    return;
+  }
+}
+
+// ===== CONFIRMATION GATE HANDLER =====
+
+function confirmGate(matchIdx, side) {
+  // Hide the gate button
+  const gate = document.getElementById(`gate-${matchIdx}-${side}`);
+  gate.classList.add('hidden');
+
+  // Reveal the Likert block
+  const likertBlock = document.getElementById(`likert-${matchIdx}-${side}`);
+  likertBlock.classList.add('ungated');
+
+  // Stop view timer for this concept (they've engaged, now they're rating)
+  stopViewTimer(matchIdx, side);
+
+  // Update step state
+  initStep(matchIdx);
+  if (side === 'a') stepState[matchIdx].aConfirmed = true;
+  else stepState[matchIdx].bConfirmed = true;
+
+  // Smooth scroll to the Likert block
+  setTimeout(() => {
+    likertBlock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+// ===== HANDLERS =====
+
+function setLikert(matchIdx, side, itemKey, value, btn) {
+  initStep(matchIdx);
+  initLikert(matchIdx, side);
+  const key = `${matchIdx}-${side}`;
+  likertAnswers[key][itemKey] = value;
+
+  // Style: clear siblings, highlight selected
+  const row = document.getElementById(`lr-${matchIdx}-${side}-${itemKey}`);
+  row.querySelectorAll('.likert-btn').forEach(b => {
+    b.classList.remove('sel-5', 'sel-4', 'sel-3', 'sel-2', 'sel-1');
+  });
+  btn.classList.add(`sel-${value}`);
+
+  // Store in survey data
+  if (!surveyData.matchups[matchIdx]) {
+    surveyData.matchups[matchIdx] = { concepts: {}, viewTime: {}, likert: {}, chosen: null, reason: '' };
+  }
+  const cId = side === 'a' ? matchups[matchIdx].a : matchups[matchIdx].b;
+  if (!surveyData.matchups[matchIdx].likert[cId]) {
+    surveyData.matchups[matchIdx].likert[cId] = {};
+  }
+  surveyData.matchups[matchIdx].likert[cId][itemKey] = value;
+
+  // Check if all 3 done for this side
+  if (allLikertDone(matchIdx, side)) {
+    if (side === 'a') stepState[matchIdx].aLikertDone = true;
+    else stepState[matchIdx].bLikertDone = true;
+    revealNext(matchIdx);
+  }
+}
+
+function choose(matchIdx, conceptId, side) {
+  initStep(matchIdx);
+  if (!surveyData.matchups[matchIdx]) {
+    surveyData.matchups[matchIdx] = { concepts: {}, viewTime: {}, likert: {}, chosen: null, reason: '' };
+  }
+  surveyData.matchups[matchIdx].chosen = conceptId;
+  surveyData.matchups[matchIdx].chosenLabel = concepts[conceptId].label;
+
+  document.getElementById(`choose-${matchIdx}-a`).classList.remove('selected');
+  document.getElementById(`choose-${matchIdx}-b`).classList.remove('selected');
+  document.getElementById(`choose-${matchIdx}-${side}`).classList.add('selected');
+
+  document.getElementById(`card-${matchIdx}-a`).classList.toggle('chosen', side === 'a');
+  document.getElementById(`card-${matchIdx}-b`).classList.toggle('chosen', side === 'b');
+
+  stepState[matchIdx].choiceDone = true;
+  revealNext(matchIdx);
+}
+
+function finishMatchup(matchIdx) {
+  const reason = document.getElementById(`reason-${matchIdx}`).value.trim();
+  const valMsg = document.getElementById(`val-open-${matchIdx}`);
+
+  const wordCount = reason.split(/\s+/).filter(w => w.length > 0).length;
+  if (wordCount < 2) {
+    valMsg.classList.add('show');
+    document.getElementById(`reason-${matchIdx}`).focus();
+    return;
+  }
+  valMsg.classList.remove('show');
+
+  // Store reason
+  if (surveyData.matchups[matchIdx]) surveyData.matchups[matchIdx].reason = reason;
+
+  // Store concept IDs, labels, and view times for this matchup
+  const m = matchups[matchIdx];
+  surveyData.matchups[matchIdx].concepts = { a: m.a, b: m.b };
+  surveyData.matchups[matchIdx].conceptLabels = { a: concepts[m.a].label, b: concepts[m.b].label };
+
+  // Collect view times
+  const vtA = viewTimers[`${matchIdx}-a`];
+  const vtB = viewTimers[`${matchIdx}-b`];
+  surveyData.matchups[matchIdx].viewTime = {};
+  if (vtA) surveyData.matchups[matchIdx].viewTime[m.a] = vtA.elapsed;
+  if (vtB) surveyData.matchups[matchIdx].viewTime[m.b] = vtB.elapsed;
+
+  // If this is the last matchup, set endTime
+  if (matchIdx === 2) {
+    surveyData.endTime = Date.now();
+  }
+
+  // Submit data progressively
+  submitData();
+
+  // Navigate
+  if (matchIdx < 2) {
+    goToScreen(matchIdx + 3); // matchup 0 -> screen 3, matchup 1 -> screen 4
+  } else {
+    goToScreen(5); // Completion
+    const secs = ((surveyData.endTime - surveyData.startTime) / 1000).toFixed(0);
+    console.log('=== SURVEY COMPLETE ===');
+    console.log('Rotation version:', versionIdx);
+    console.log('Time:', secs + 's');
+    console.log('Data:', JSON.stringify(surveyData, null, 2));
+  }
+}
+
+// ===== DATA SUBMISSION (Google Sheets) =====
+
+function submitData() {
+  // Always log to console as fallback
+  console.log('=== SUBMITTING DATA ===');
+  console.log(JSON.stringify(surveyData, null, 2));
+
+  // Submit to Google Sheets if URL is configured
+  if (SHEETS_URL) {
+    fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(surveyData)
+    }).then(() => {
+      console.log('Data submitted to Google Sheets');
+    }).catch(err => {
+      console.warn('Sheets submission failed (data logged to console):', err);
+    });
+  }
+}
+
+// ===== NAVIGATION =====
+function goToScreen(idx) {
+  // Start survey timer when leaving orientation (entering first matchup)
+  if (idx === 2 && !surveyData.startTime) surveyData.startTime = Date.now();
+
+  // Set up Prolific completion screen
+  if (idx === 5) {
+    document.getElementById('completion-code').textContent = COMPLETION_CODE;
+    document.getElementById('prolific-return-btn').href = PROLIFIC_RETURN_URL;
+  }
+
+  const cur = document.getElementById(`screen-${currentScreen}`);
+  cur.classList.remove('visible');
+  setTimeout(() => {
+    cur.classList.remove('active');
+    currentScreen = idx;
+    const nxt = document.getElementById(`screen-${idx}`);
+    nxt.classList.add('active');
+    void nxt.offsetWidth;
+    nxt.classList.add('visible');
+
+    // Progress bar: 0% on screens 0-1, then 33%/66%/100% on matchups, 100% on completion
+    let progress = 0;
+    if (idx >= 2 && idx <= 4) {
+      progress = ((idx - 1) / 3) * 100; // screen 2 = 33%, screen 3 = 66%, screen 4 = 100%
+    } else if (idx === 5) {
+      progress = 100;
+    }
+    document.getElementById('progressBar').style.width = progress + '%';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Start view timer for Advert A when matchup screen becomes visible
+    if (idx >= 2 && idx <= 4) {
+      const matchIdx = idx - 2;
+      startViewTimer(matchIdx, 'a');
+    }
+  }, 180);
+}
+
+// ===== LIGHTBOX =====
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ===== INIT =====
+buildMatchups();
+setTimeout(() => document.getElementById('screen-0').classList.add('visible'), 50);
+console.log('Survey v8 (static) | Brand:', BRAND, '| Rotation:', versionIdx, '| Matchups:', matchups.map(m => `[A:${concepts[m.a].label} vs B:${concepts[m.b].label}]`).join(', '));
+</script>
+</body>
+</html>
