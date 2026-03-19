@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Summer Campaign Survey</title>
+<title>Creative Concept Survey</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -445,17 +445,16 @@ h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
   <div class="screen" id="screen-1">
     <h1>Help choose an advert</h1>
     <p class="subtitle" style="font-weight: 600; color: var(--text);">
-      A major homebuilder is launching a summer campaign. The adverts are aimed at
-      encouraging people who might be interested in a new-build home to take the
-      next step. They have several designs and need to know which one works best.
-      That's where you come in.
+      A major homebuilder is about to launch a new advertising campaign aimed at
+      people who are interested in new-build homes. They have several designs and
+      need to know which one works best. That's where you come in.
     </p>
     <p class="subtitle" style="margin-top:-8px;">With that in mind:</p>
     <ul class="intro-list">
       <li>You'll see <strong>3 pairs</strong> of adverts</li>
       <li>Each advert has several panels &mdash; <strong>please look at the images, text, and how they work together</strong></li>
       <li>In reality these would appear as a short animation (GIF), but here they're shown as a series of images so you can view each step clearly</li>
-      <li>For each pair, you'll pick which advert you think is <strong>more effective at inspiring someone to act</strong></li>
+      <li>For each pair, you'll pick which advert you think is <strong>more effective at delivering the homebuilder's message</strong></li>
       <li>There are no right or wrong answers</li>
     </ul>
     <p class="subtitle" style="font-size:0.88rem; margin-top: -8px;">
@@ -495,24 +494,24 @@ h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
 // ===== CONFIG =====
 const BRAND = 'RR';
 const BRAND_NAME = 'Redrow';
-const COMPLETION_CODE = 'XXXXXXXX';
+const COMPLETION_CODE = 'C2824KYD';
 const PROLIFIC_RETURN_URL = 'https://app.prolific.com/submissions/complete?cc=' + COMPLETION_CODE;
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycby9xcBpHMUsWdWechR8zMOn-dlel-UgVFg__A6CVJyGZGHt-HuIN_0IsMdIzs4F7Ie0vQ/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzBlTebfyKHY2MLGSCFbZHRyfV-lJjT7KO04-NlTqueFw7fjEYlTLOMg8pl_qZWBqDvoQ/exec';
 
 // ===== DATA =====
 const concepts = [
-  { id: 0, label: 'Creative 1', agency: 1, idea: 'Invite in', image: 'images/creative-1.png' },
-  { id: 1, label: 'Creative 2', agency: 1, idea: 'Summer of more', image: 'images/creative-2.png' },
-  { id: 2, label: 'Creative 3', agency: 1, idea: 'Camera Roll (Wild Card)', image: 'images/creative-3.png' },
-  { id: 3, label: 'Creative 4', agency: 2, idea: 'Redrow your summer', image: 'images/creative-4.png' },
-  { id: 4, label: 'Creative 5', agency: 2, idea: 'It takes a Redrow summer', image: 'images/creative-5.png' },
-  { id: 5, label: 'Creative 6', agency: 2, idea: 'The summer you deserve', image: 'images/creative-6.png' }
+  { id: 0, label: 'Creative 13', image: 'images/creative-13.png' },
+  { id: 1, label: 'Creative 14', image: 'images/creative-14.png' },
+  { id: 2, label: 'Creative 15', image: 'images/creative-15.png' },
+  { id: 3, label: 'Creative 16', image: 'images/creative-16.png' },
+  { id: 4, label: 'Creative 17', image: 'images/creative-17.png' },
+  { id: 5, label: 'Creative 18', image: 'images/creative-18.png' }
 ];
 
 const LIKERT_ITEMS = [
   { key: 'eyecatching', label: 'This advert is eye-catching' },
   { key: 'message', label: 'This advert makes me keen to find out more' },
-  { key: 'urgency',     label: 'This advert creates an effective sense of urgency' }
+  { key: 'quality',     label: 'This advert makes ' + BRAND_NAME + ' feel like a quality homebuilder' }
 ];
 
 const LIKERT_SCALE = [
@@ -719,7 +718,7 @@ function buildMatchups() {
       <div class="step-reveal" id="reveal-choice-${i}">
         <div class="choice-section">
           <p class="choice-heading">
-            Overall, which of these two adverts is more effective at inspiring someone to buy a new home in time for summer?
+            Overall, which of these two adverts is more effective at getting across that ${BRAND_NAME} is a 5-star homebuilder?
           </p>
           <p class="choice-hint">Scroll up if you need a reminder of both.</p>
           <div class="choice-btns" id="choice-btns-${i}">
@@ -866,8 +865,6 @@ function choose(matchIdx, conceptId, side) {
   }
   surveyData.matchups[matchIdx].chosen = conceptId;
   surveyData.matchups[matchIdx].chosenLabel = concepts[conceptId].label;
-  surveyData.matchups[matchIdx].chosenAgency = concepts[conceptId].agency;
-  surveyData.matchups[matchIdx].chosenIdea = concepts[conceptId].idea;
 
   document.getElementById(`choose-${matchIdx}-a`).classList.remove('selected');
   document.getElementById(`choose-${matchIdx}-b`).classList.remove('selected');
@@ -899,8 +896,6 @@ function finishMatchup(matchIdx) {
   const m = matchups[matchIdx];
   surveyData.matchups[matchIdx].concepts = { a: m.a, b: m.b };
   surveyData.matchups[matchIdx].conceptLabels = { a: concepts[m.a].label, b: concepts[m.b].label };
-  surveyData.matchups[matchIdx].conceptAgencies = { a: concepts[m.a].agency, b: concepts[m.b].agency };
-  surveyData.matchups[matchIdx].conceptIdeas = { a: concepts[m.a].idea, b: concepts[m.b].idea };
 
   // Collect view times
   const vtA = viewTimers[`${matchIdx}-a`];
@@ -1006,7 +1001,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
 // ===== INIT =====
 buildMatchups();
 setTimeout(() => document.getElementById('screen-0').classList.add('visible'), 50);
-console.log('Survey 2 v1 (summer) | Brand:', BRAND, '| Rotation:', versionIdx, '| Matchups:', matchups.map(m => `[A:${concepts[m.a].label} vs B:${concepts[m.b].label}]`).join(', '));
+console.log('Survey v8 (static) | Brand:', BRAND, '| Rotation:', versionIdx, '| Matchups:', matchups.map(m => `[A:${concepts[m.a].label} vs B:${concepts[m.b].label}]`).join(', '));
 </script>
 </body>
 </html>
