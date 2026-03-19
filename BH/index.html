@@ -909,9 +909,17 @@ function finishMatchup(matchIdx) {
   if (vtA) surveyData.matchups[matchIdx].viewTime[m.a] = vtA.elapsed;
   if (vtB) surveyData.matchups[matchIdx].viewTime[m.b] = vtB.elapsed;
 
-  // If this is the last matchup, set endTime
+  // Restructure likert data for Sheets (concept-id-keyed → A/B-keyed)
+  surveyData.matchups[matchIdx].likertA = surveyData.matchups[matchIdx].likert[m.a] || {};
+  surveyData.matchups[matchIdx].likertB = surveyData.matchups[matchIdx].likert[m.b] || {};
+
+  // Track completion
+  surveyData.matchupsCompleted = matchIdx + 1;
+
+  // If this is the last matchup, set endTime and totalSeconds
   if (matchIdx === 2) {
     surveyData.endTime = Date.now();
+    surveyData.totalSeconds = ((surveyData.endTime - surveyData.startTime) / 1000).toFixed(0);
   }
 
   // Submit data progressively
