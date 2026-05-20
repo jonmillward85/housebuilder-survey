@@ -526,7 +526,13 @@ const ALL_PAIRS = [
   { a: 1, b: 2 }  // pairIndex 2: Creative 2 vs Creative 3
 ];
 
-const pairIndex = Math.floor(Math.random() * ALL_PAIRS.length);
+// Optional ?pair=0|1|2 override for QA/testing only. Real respondents (incl.
+// Prolific links, which never carry ?pair) fall through to random selection.
+const _pairParam = new URLSearchParams(location.search).get('pair');
+const _forcedPair = _pairParam !== null ? parseInt(_pairParam, 10) : NaN;
+const pairIndex = (Number.isInteger(_forcedPair) && _forcedPair >= 0 && _forcedPair < ALL_PAIRS.length)
+  ? _forcedPair
+  : Math.floor(Math.random() * ALL_PAIRS.length);
 let matchup = { ...ALL_PAIRS[pairIndex] };
 
 // Randomise A/B order within the pair
@@ -869,7 +875,7 @@ function choose(matchIdx, conceptId, side) {
   revealNext(matchIdx);
 }
 
-function finishMatchup(matchIdx) {
+async function finishMatchup(matchIdx) {
   const reason = document.getElementById(`reason-${matchIdx}`).value.trim();
   const valMsg = document.getElementById(`val-open-${matchIdx}`);
 
@@ -909,8 +915,12 @@ function finishMatchup(matchIdx) {
   surveyData.endTime = Date.now();
   surveyData.totalSeconds = ((surveyData.endTime - surveyData.startTime) / 1000).toFixed(0);
 
-  // Submit data
-  submitData();
+  // Submit data - await delivery (capped) so the request goes out before we
+  // navigate, but never trap the respondent if the network is slow.
+  await Promise.race([
+    submitData(),
+    new Promise(resolve => setTimeout(resolve, 4000))
+  ]);
 
   // Navigate to completion
   goToScreen(3);
@@ -922,23 +932,51 @@ function finishMatchup(matchIdx) {
 
 // ===== DATA SUBMISSION (Google Sheets) =====
 
-function submitData() {
-  // Always log to console as fallback
-  console.log('=== SUBMITTING DATA ===');
-  console.log(JSON.stringify(surveyData, null, 2));
+async function submitData() {
+  const payload = JSON.stringify(surveyData);
 
-  // Submit to Google Sheets if URL is configured
-  if (SHEETS_URL) {
-    fetch(SHEETS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify(surveyData)
-    }).then(() => {
-      console.log('Data submitted to Google Sheets');
-    }).catch(err => {
-      console.warn('Sheets submission failed (data logged to console):', err);
-    });
+  // Always log to console as a fallback record
+  console.log('=== SUBMITTING DATA ===');
+  console.log(payload);
+
+  // Local backup on the respondent's device. Survives an accidental reload and
+  // gives a client-side audit trail even if the network send is dropped.
+  try {
+    localStorage.setItem('survey3_' + BRAND + '_' + (surveyData.participantId || surveyData.sessionId), payload);
+  } catch (e) { /* storage unavailable (private mode/quota) - ignore */ }
+
+  if (!SHEETS_URL) return false;
+
+  // POST with one retry. NOTE: mode:'no-cors' returns an opaque response, so we
+  // can detect network-level failures (offline/DNS/refused) and retry them, but
+  // not HTTP errors. sendBeacon is a last-ditch attempt that survives unload.
+  for (let attempt = 1; attempt <= 2; attempt++) {
+    try {
+      await fetch(SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: payload
+      });
+      console.log('Data submitted to Google Sheets (attempt ' + attempt + ')');
+      return true;
+    } catch (err) {
+      console.warn('Submit attempt ' + attempt + ' failed:', err);
+      if (attempt < 2) await new Promise(r => setTimeout(r, 800));
+    }
   }
+
+  // Last-ditch: queue a beacon the browser delivers even if the page unloads.
+  try {
+    if (navigator.sendBeacon) {
+      const ok = navigator.sendBeacon(SHEETS_URL, new Blob([payload], { type: 'text/plain;charset=utf-8' }));
+      console.warn('Fell back to sendBeacon:', ok);
+      return ok;
+    }
+  } catch (e) { /* ignore */ }
+
+  console.error('All submission attempts failed; data retained in localStorage only.');
+  return false;
 }
 
 // ===== NAVIGATION =====
