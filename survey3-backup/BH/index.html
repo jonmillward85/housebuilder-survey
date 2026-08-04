@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Christmas Campaign Survey</title>
+<title>Quality Awards Campaign Survey</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -437,7 +437,7 @@ h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
       <label for="participant-id">Participant ID</label>
       <input type="text" id="participant-id" placeholder="e.g. 5f3a2b1c..." autocomplete="off" spellcheck="false">
       <div class="id-error" id="id-error">Please enter your participant ID to continue.</div>
-      <button class="btn btn-primary" id="start-button" onclick="submitParticipantId()" style="margin-top: 12px;">Start the survey &rarr;</button>
+      <button class="btn btn-primary" onclick="submitParticipantId()" style="margin-top: 12px;">Start the survey &rarr;</button>
     </div>
   </div>
 
@@ -445,17 +445,17 @@ h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
   <div class="screen" id="screen-1">
     <h1>Help choose an advert</h1>
     <p class="subtitle" style="font-weight: 600; color: var(--text);">
-      A major homebuilder is launching a campaign this autumn. The adverts are aimed at people who might be interested in buying a new-build home, and are designed to get them to register their interest now so they could be moved in before Christmas. They have several designs and need to know which one works best. That's where you come in.
-    </p>
-    <p class="subtitle" style="font-weight: 600; color: var(--text);">
-      One thing worth knowing as you look at them: buying a new-build home is usually quicker than buying an ordinary second-hand home, because there's no chain of buyers and sellers to wait for. A new-build move can often complete in around two months, where a purchase with a chain typically takes many months.
+      A major homebuilder is launching a campaign about their quality credentials.
+      The adverts are aimed at people who might be interested in buying a new-build
+      home. They have several designs and need to know which one works best.
+      That's where you come in.
     </p>
     <p class="subtitle" style="margin-top:-8px;">With that in mind:</p>
     <ul class="intro-list">
-      <li>You'll see <strong>2 pairs</strong> of adverts</li>
+      <li>You'll see <strong>one pair</strong> of adverts</li>
       <li>Each advert has several panels &mdash; <strong>please look at the images, text, and how they work together</strong></li>
       <li>In reality these would appear as a short animation (GIF), but here they're shown as a series of images so you can view each step clearly</li>
-      <li>For each pair, you'll rate both adverts and pick which one you think is <strong>more effective</strong></li>
+      <li>You'll pick which advert you think works better overall, and tell us why in a few words</li>
       <li>There are no right or wrong answers</li>
     </ul>
     <p class="subtitle" style="font-size:0.88rem; margin-top: -8px;">
@@ -464,12 +464,11 @@ h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
     <button class="btn btn-primary" onclick="goToScreen(2)" style="margin-top: 8px;">Show me the adverts</button>
   </div>
 
-  <!-- Matchup screens built by JS (screens 2 and 3) -->
+  <!-- Matchup screen built by JS (screen 2) -->
   <div class="screen" id="screen-2"></div>
-  <div class="screen" id="screen-3"></div>
 
-  <!-- Screen 4: Completion -->
-  <div class="screen" id="screen-4">
+  <!-- Screen 3: Completion -->
+  <div class="screen" id="screen-3">
     <h1>Thank you!</h1>
     <div class="completion-card">
       <p class="subtitle" style="text-align: center; margin-bottom: 12px;">Your responses have been recorded. We really appreciate your time.</p>
@@ -492,26 +491,23 @@ h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
 
 <script>
 // ===== CONFIG =====
-const BRAND = 'BHL';
-const BRAND_NAME = 'Barratt London';
+const BRAND = 'BH';
+const BRAND_NAME = 'Barratt Homes';
 const COMPLETION_CODE = 'C2824KYD';
 const PROLIFIC_RETURN_URL = 'https://app.prolific.com/submissions/complete?cc=' + COMPLETION_CODE;
-const API_URL = 'https://wave4-survey-api.wave4-survey-pipeline.workers.dev';
-const MIRROR_URL = 'https://script.google.com/macros/s/AKfycbw9uMvCSU3ciQALFHBGB2u7_iKlO2P-666ep4evOvSZ6kyPs94F0gKxYdn1plmgVdLnNw/exec';
-const SCHEMA_VERSION = 'wave4-v1';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxpXHbc8ZBRtvN6tyVi_CUVxfwWSTEz3TbIYiWocJkp2wRhRBrBq4rDnGYClBDwMw_y3Q/exec';
 
 // ===== DATA =====
 const concepts = [
-  { id: 0, label: 'Creative 1', idea: "Make Christmas your moment", image: 'images/creative-1.png' },
-  { id: 1, label: 'Creative 2', idea: "Time to believe", image: 'images/creative-2.png' },
-  { id: 2, label: 'Creative 3', idea: "Christmas in your own home", image: 'images/creative-3.png' },
-  { id: 3, label: 'Creative 4', idea: "Key to a happy holidays", image: 'images/creative-4.png' }
+  { id: 0, label: 'Creative 1', agency: 1, idea: "When it's built right, it shows",         image: 'images/creative-1.png' },
+  { id: 1, label: 'Creative 2', agency: 2, idea: 'Take pride (5-star evolution)',           image: 'images/creative-2.png' },
+  { id: 2, label: 'Creative 3', agency: 2, idea: 'Rest easy',                               image: 'images/creative-3.png' }
 ];
 
 const LIKERT_ITEMS = [
   { key: 'eyecatching', label: 'This advert is eye-catching' },
-  { key: 'clear', label: 'This advert is easy to understand' },
-  { key: 'realistic', label: 'This advert makes moving into a new home soon seem realistic' }
+  { key: 'clear',       label: 'This advert is easy to understand' },
+  { key: 'trust',       label: 'This advert makes the homebuilder feel like one you can trust' }
 ];
 
 const LIKERT_SCALE = [
@@ -522,41 +518,45 @@ const LIKERT_SCALE = [
   { value: 1, label: 'Strongly disagree', abbr: 'SD' }
 ];
 
-// ===== ROUND-ROBIN ROTATIONS =====
-const rotationVersions = [
-  [{ a: 0, b: 1, rotationPairSlot: 1 }, { a: 2, b: 3, rotationPairSlot: 2 }],
-  [{ a: 0, b: 2, rotationPairSlot: 1 }, { a: 1, b: 3, rotationPairSlot: 2 }],
-  [{ a: 0, b: 3, rotationPairSlot: 1 }, { a: 1, b: 2, rotationPairSlot: 2 }]
+// ===== RANDOM PAIR SELECTION =====
+// All 3 possible pairs for 3 concepts. Each respondent sees one at random.
+const ALL_PAIRS = [
+  { a: 0, b: 1 }, // pairIndex 0: Creative 1 vs Creative 2
+  { a: 0, b: 2 }, // pairIndex 1: Creative 1 vs Creative 3
+  { a: 1, b: 2 }  // pairIndex 2: Creative 2 vs Creative 3
 ];
 
-let matchups = [];
+// Optional ?pair=0|1|2 override for QA/testing only. Real respondents (incl.
+// Prolific links, which never carry ?pair) fall through to random selection.
+const _pairParam = new URLSearchParams(location.search).get('pair');
+const _forcedPair = _pairParam !== null ? parseInt(_pairParam, 10) : NaN;
+const pairIndex = (Number.isInteger(_forcedPair) && _forcedPair >= 0 && _forcedPair < ALL_PAIRS.length)
+  ? _forcedPair
+  : Math.floor(Math.random() * ALL_PAIRS.length);
+let matchup = { ...ALL_PAIRS[pairIndex] };
+
+// Randomise A/B order within the pair
+if (Math.random() < 0.5) { const t = matchup.a; matchup.a = matchup.b; matchup.b = t; }
+
+// Keep as a length-1 array for parity with Wave 2 data structure
+const matchups = [matchup];
 
 // ===== STATE =====
 const surveyData = {
-  schemaVersion: SCHEMA_VERSION,
-  eventId: null,
   participantId: null,
-  sessionId: Date.now() + '_' + randomToken('session'),
+  sessionId: Date.now() + '-' + Math.random().toString(36).substr(2, 6),
   brand: BRAND,
   startTime: null,
   endTime: null,
-  totalSeconds: null,
-  matchupsCompleted: 0,
-  rotationVersion: null,
-  assignmentId: null,
-  assignmentSource: null,
-  assignmentOrdinal: null,
-  presentationSeed: null,
+  pairIndex: pairIndex,
   matchups: []
 };
 let currentScreen = 0;
-let assignmentInProgress = false;
-const finishingMatchups = new Set();
-const TOTAL_SCREENS = 5; // 0=ID, 1=Orientation, 2-3=Matchups, 4=Completion
+const TOTAL_SCREENS = 4; // 0=ID, 1=Orientation, 2=Matchup, 3=Completion
 
 // Per-matchup step state
 const stepState = {};
-// Track Likert answers: likertAnswers[matchIdx-side] = { eyecatching: 5, clear: null, realistic: null }
+// Track Likert answers: likertAnswers[matchIdx-side] = { eyecatching: 5, clear: null, trust: null }
 const likertAnswers = {};
 
 // ===== PER-CONCEPT TIMING =====
@@ -607,123 +607,10 @@ function allLikertDone(matchIdx, side) {
   return LIKERT_ITEMS.every(item => likertAnswers[key][item.key] !== null);
 }
 
-// ===== ASSIGNMENT + AUDITABLE PRESENTATION RANDOMISATION =====
-function randomToken(prefix) {
-  if (crypto.randomUUID) return prefix + '_' + crypto.randomUUID().replace(/-/g, '');
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return prefix + '_' + Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
-}
-
-function stableFallbackVersion(participantId) {
-  const value = BRAND + ':' + participantId.trim().toUpperCase();
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < value.length; i++) {
-    hash ^= value.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return (hash >>> 0) % 3 + 1;
-}
-
-function seededRandom(seedText) {
-  let seed = 0x811c9dc5;
-  for (let i = 0; i < seedText.length; i++) {
-    seed ^= seedText.charCodeAt(i);
-    seed = Math.imul(seed, 0x01000193);
-  }
-  return function() {
-    seed += 0x6D2B79F5;
-    let value = seed;
-    value = Math.imul(value ^ (value >>> 15), value | 1);
-    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-    return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function qaOverrideVersion(participantId) {
-  if (!/^TEST(?:[-_]|$)/i.test(participantId)) return null;
-  const value = Number.parseInt(new URLSearchParams(location.search).get('version'), 10);
-  return Number.isInteger(value) && value >= 1 && value <= 3 ? value : null;
-}
-
-async function fetchWithTimeout(url, options, timeoutMs) {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    return await fetch(url, { ...options, signal: controller.signal });
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-async function getAssignment(participantId) {
-  const forcedVersion = qaOverrideVersion(participantId);
-  if (forcedVersion) {
-    return {
-      assignmentId: null,
-      rotationVersion: forcedVersion,
-      assignmentOrdinal: null,
-      assignmentSource: 'qa_override',
-      presentationSeed: randomToken('seed')
-    };
-  }
-
-  if (API_URL && !API_URL.startsWith('REPLACE_')) {
-    for (let attempt = 1; attempt <= 2; attempt++) {
-      try {
-        const response = await fetchWithTimeout(API_URL + '/api/assign', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ participantId, brand: BRAND })
-        }, 2500);
-        const body = await response.json();
-        const assignment = body.assignment;
-        if (!response.ok || !assignment || ![1, 2, 3].includes(assignment.rotationVersion)) {
-          throw new Error(body.message || 'Assignment was not accepted.');
-        }
-        return assignment;
-      } catch (error) {
-        console.warn('Assignment attempt ' + attempt + ' failed:', error);
-        if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 600));
-      }
-    }
-  }
-
-  return {
-    assignmentId: null,
-    rotationVersion: stableFallbackVersion(participantId),
-    assignmentOrdinal: null,
-    assignmentSource: 'fallback_hash',
-    presentationSeed: randomToken('seed')
-  };
-}
-
-function configureMatchups(assignment) {
-  const version = Number(assignment.rotationVersion);
-  const random = seededRandom(assignment.presentationSeed);
-  matchups = rotationVersions[version - 1].map(pair => ({ ...pair }));
-
-  if (random() < 0.5) matchups.reverse();
-  matchups.forEach(matchup => {
-    if (random() < 0.5) [matchup.a, matchup.b] = [matchup.b, matchup.a];
-    matchup.pairKey = Math.min(matchup.a, matchup.b) + 'v' + Math.max(matchup.a, matchup.b);
-    matchup.positionSwapped = matchup.a > matchup.b;
-  });
-
-  surveyData.rotationVersion = version;
-  surveyData.assignmentId = assignment.assignmentId || null;
-  surveyData.assignmentSource = assignment.assignmentSource;
-  surveyData.assignmentOrdinal = assignment.assignmentOrdinal || null;
-  surveyData.presentationSeed = assignment.presentationSeed;
-  buildMatchups();
-}
-
 // ===== PARTICIPANT ID =====
-async function submitParticipantId() {
-  if (assignmentInProgress) return;
+function submitParticipantId() {
   const input = document.getElementById('participant-id');
   const error = document.getElementById('id-error');
-  const button = document.getElementById('start-button');
   const val = input.value.trim();
 
   if (!val) {
@@ -733,22 +620,8 @@ async function submitParticipantId() {
   }
 
   error.classList.remove('show');
-  assignmentInProgress = true;
-  button.disabled = true;
-  button.textContent = 'Starting…';
-  try {
-    surveyData.participantId = val;
-    configureMatchups(await getAssignment(val));
-    goToScreen(1);
-  } catch (assignmentError) {
-    console.error(assignmentError);
-    error.textContent = 'The survey could not start. Please try again.';
-    error.classList.add('show');
-  } finally {
-    assignmentInProgress = false;
-    button.disabled = false;
-    button.innerHTML = 'Start the survey &rarr;';
-  }
+  surveyData.participantId = val;
+  goToScreen(1);
 }
 
 // Allow Enter key to submit ID
@@ -780,7 +653,7 @@ function buildLikertBlock(matchIdx, side) {
     </div>`;
 }
 
-// ===== BUILD MATCHUP SCREENS =====
+// ===== BUILD MATCHUP SCREEN =====
 function buildMatchups() {
   matchups.forEach((m, i) => {
     initStep(i);
@@ -788,11 +661,10 @@ function buildMatchups() {
     initLikert(i, 'b');
     const cA = concepts[m.a];
     const cB = concepts[m.b];
-    const screenIdx = i + 2; // Matchup screens are 2 and 3
-    const el = document.getElementById(`screen-${screenIdx}`);
+    const el = document.getElementById('screen-2');
 
     el.innerHTML = `
-      <div class="step-pill">Pair ${i + 1} of 2</div>
+      <div class="step-pill">Compare these adverts</div>
 
       <!-- ===== ADVERT A ===== -->
       <div class="concept-card" id="card-${i}-a">
@@ -809,7 +681,7 @@ function buildMatchups() {
 
       <!-- PROMPT TO CONTINUE -->
       <div class="step-prompt" id="prompt-vs-${i}">
-        <span class="prompt-text">\u2193 Now take a look at the second advert \u2193</span>
+        <span class="prompt-text">↓ Now take a look at the second advert ↓</span>
       </div>
 
       <!-- ===== VS + ADVERT B (hidden initially) ===== -->
@@ -835,14 +707,14 @@ function buildMatchups() {
 
       <!-- PROMPT TO CHOOSE -->
       <div class="step-prompt" id="prompt-choice-${i}">
-        <span class="prompt-text">\u2193 Now make your choice \u2193</span>
+        <span class="prompt-text">↓ Now make your choice ↓</span>
       </div>
 
       <!-- ===== CHOICE (hidden initially) ===== -->
       <div class="step-reveal" id="reveal-choice-${i}">
         <div class="choice-section">
           <p class="choice-heading">
-            Overall, which of these two adverts is more effective at getting someone to register their interest in a home they could move into by Christmas?
+            Overall, which of these two adverts is more effective at making someone consider the homebuilder when buying a new home?
           </p>
           <p class="choice-hint">Scroll up if you need a reminder of both.</p>
           <div class="choice-btns" id="choice-btns-${i}">
@@ -856,10 +728,10 @@ function buildMatchups() {
       <div class="step-reveal" id="reveal-open-${i}">
         <div class="open-section" style="margin-top: 24px;">
           <p class="open-heading">In a few words, what made you choose that one over the other?</p>
-          <textarea id="reason-${i}" placeholder="There are no wrong answers \u2014 just say what came to mind..." rows="3"></textarea>
+          <textarea id="reason-${i}" placeholder="There are no wrong answers — just say what came to mind..." rows="3"></textarea>
           <div class="next-row">
             <span class="validation-msg" id="val-open-${i}">Please write at least a few words.</span>
-            <button class="btn btn-primary" onclick="finishMatchup(${i})">${i < 1 ? 'Next pair \u2192' : 'Finish \u2192'}</button>
+            <button class="btn btn-primary" onclick="finishMatchup(${i})">Finish →</button>
           </div>
         </div>
       </div>
@@ -989,6 +861,7 @@ function choose(matchIdx, conceptId, side) {
   }
   surveyData.matchups[matchIdx].chosen = conceptId;
   surveyData.matchups[matchIdx].chosenLabel = concepts[conceptId].label;
+  surveyData.matchups[matchIdx].chosenAgency = concepts[conceptId].agency;
   surveyData.matchups[matchIdx].chosenIdea = concepts[conceptId].idea;
 
   document.getElementById(`choose-${matchIdx}-a`).classList.remove('selected');
@@ -1014,20 +887,14 @@ async function finishMatchup(matchIdx) {
   }
   valMsg.classList.remove('show');
 
-  // Prevent a rapid double-tap from advancing or sending the same stage twice.
-  if (finishingMatchups.has(matchIdx)) return;
-  finishingMatchups.add(matchIdx);
-
   // Store reason
   if (surveyData.matchups[matchIdx]) surveyData.matchups[matchIdx].reason = reason;
 
   // Store concept IDs, labels, and view times for this matchup
   const m = matchups[matchIdx];
-  surveyData.matchups[matchIdx].pairKey = m.pairKey;
-  surveyData.matchups[matchIdx].rotationPairSlot = m.rotationPairSlot;
-  surveyData.matchups[matchIdx].positionSwapped = m.positionSwapped;
   surveyData.matchups[matchIdx].concepts = { a: m.a, b: m.b };
   surveyData.matchups[matchIdx].conceptLabels = { a: concepts[m.a].label, b: concepts[m.b].label };
+  surveyData.matchups[matchIdx].conceptAgencies = { a: concepts[m.a].agency, b: concepts[m.b].agency };
   surveyData.matchups[matchIdx].conceptIdeas = { a: concepts[m.a].idea, b: concepts[m.b].idea };
 
   // Collect view times
@@ -1037,124 +904,88 @@ async function finishMatchup(matchIdx) {
   if (vtA) surveyData.matchups[matchIdx].viewTime[m.a] = vtA.elapsed;
   if (vtB) surveyData.matchups[matchIdx].viewTime[m.b] = vtB.elapsed;
 
-  // Restructure likert data for Sheets (concept-id-keyed → A/B-keyed)
+  // Restructure likert data for Sheets (concept-id-keyed -> A/B-keyed)
   surveyData.matchups[matchIdx].likertA = surveyData.matchups[matchIdx].likert[m.a] || {};
   surveyData.matchups[matchIdx].likertB = surveyData.matchups[matchIdx].likert[m.b] || {};
 
-  // Track completion
+  // Track completion (always 1 for Wave 3 — single matchup)
   surveyData.matchupsCompleted = matchIdx + 1;
 
-  // If this is the last matchup, set endTime and totalSeconds
-  if (matchIdx === 1) {
-    surveyData.endTime = Date.now();
-    surveyData.totalSeconds = Math.round((surveyData.endTime - surveyData.startTime) / 1000);
-  }
+  // Set endTime and totalSeconds (single matchup is always the last)
+  surveyData.endTime = Date.now();
+  surveyData.totalSeconds = ((surveyData.endTime - surveyData.startTime) / 1000).toFixed(0);
 
-  // Submit data progressively. Await delivery briefly, as in Wave 3, without
-  // trapping the respondent if their network is slow.
+  // Submit data - await delivery (capped) so the request goes out before we
+  // navigate, but never trap the respondent if the network is slow.
   await Promise.race([
     submitData(),
-    new Promise(resolve => setTimeout(resolve, 4500))
+    new Promise(resolve => setTimeout(resolve, 4000))
   ]);
 
-  // Navigate
-  if (matchIdx < 1) {
-    goToScreen(3);
-  } else {
-    goToScreen(4); // Completion
-    console.log('=== SURVEY COMPLETE ===');
-    console.log('Rotation version:', surveyData.rotationVersion);
-    console.log('Time:', surveyData.totalSeconds + 's');
-    console.log('Data:', JSON.stringify(surveyData, null, 2));
-  }
+  // Navigate to completion
+  goToScreen(3);
+  console.log('=== SURVEY COMPLETE ===');
+  console.log('Pair index:', pairIndex);
+  console.log('Time:', surveyData.totalSeconds + 's');
+  console.log('Data:', JSON.stringify(surveyData, null, 2));
 }
 
-// ===== DATA SUBMISSION (Cloudflare primary + Google Sheets mirror) =====
+// ===== DATA SUBMISSION (Google Sheets) =====
 
 async function submitData() {
-  surveyData.eventId = surveyData.sessionId + ':' + surveyData.matchupsCompleted;
-  surveyData.clientSentAt = new Date().toISOString();
   const payload = JSON.stringify(surveyData);
 
+  // Always log to console as a fallback record
   console.log('=== SUBMITTING DATA ===');
   console.log(payload);
 
+  // Local backup on the respondent's device. Survives an accidental reload and
+  // gives a client-side audit trail even if the network send is dropped.
   try {
-    localStorage.setItem('wave4_' + BRAND + '_' + surveyData.participantId + '_' + surveyData.matchupsCompleted, payload);
-  } catch (error) {
-    console.warn('Local backup unavailable:', error);
-  }
+    localStorage.setItem('survey3_' + BRAND + '_' + (surveyData.participantId || surveyData.sessionId), payload);
+  } catch (e) { /* storage unavailable (private mode/quota) - ignore */ }
 
-  const results = await Promise.allSettled([
-    submitPrimary(payload),
-    submitMirror(payload)
-  ]);
-  return results[0].status === 'fulfilled' && results[0].value === true;
-}
+  if (!SHEETS_URL) return false;
 
-async function submitPrimary(payload) {
-  if (!API_URL || API_URL.startsWith('REPLACE_')) return false;
-
+  // POST with one retry. NOTE: mode:'no-cors' returns an opaque response, so we
+  // can detect network-level failures (offline/DNS/refused) and retry them, but
+  // not HTTP errors. sendBeacon is a last-ditch attempt that survives unload.
   for (let attempt = 1; attempt <= 2; attempt++) {
     try {
-      const response = await fetchWithTimeout(API_URL + '/api/submissions', {
+      await fetch(SHEETS_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: payload
-      }, 2000);
-      const body = await response.json();
-      if (!response.ok || body.status !== 'ok') throw new Error(body.message || 'Submission rejected.');
-      console.log('Primary submission accepted (attempt ' + attempt + ').');
+      });
+      console.log('Data submitted to Google Sheets (attempt ' + attempt + ')');
       return true;
-    } catch (error) {
-      console.warn('Primary submission attempt ' + attempt + ' failed:', error);
-      if (attempt < 2) await new Promise(resolve => setTimeout(resolve, 500));
+    } catch (err) {
+      console.warn('Submit attempt ' + attempt + ' failed:', err);
+      if (attempt < 2) await new Promise(r => setTimeout(r, 800));
     }
   }
 
+  // Last-ditch: queue a beacon the browser delivers even if the page unloads.
   try {
     if (navigator.sendBeacon) {
-      const queued = navigator.sendBeacon(API_URL + '/api/submissions', new Blob([payload], { type: 'text/plain;charset=utf-8' }));
-      console.warn('Primary submission fell back to sendBeacon:', queued);
-      return queued;
+      const ok = navigator.sendBeacon(SHEETS_URL, new Blob([payload], { type: 'text/plain;charset=utf-8' }));
+      console.warn('Fell back to sendBeacon:', ok);
+      return ok;
     }
-  } catch (error) {
-    console.warn('Primary sendBeacon failed:', error);
-  }
-  return false;
-}
+  } catch (e) { /* ignore */ }
 
-async function submitMirror(payload) {
-  if (!MIRROR_URL || MIRROR_URL.startsWith('REPLACE_')) return false;
-  try {
-    await fetch(MIRROR_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: payload
-    });
-    console.log('Sheets mirror request sent.');
-    return true;
-  } catch (error) {
-    console.warn('Sheets mirror request failed:', error);
-    try {
-      if (navigator.sendBeacon) {
-        return navigator.sendBeacon(MIRROR_URL, new Blob([payload], { type: 'text/plain;charset=utf-8' }));
-      }
-    } catch (beaconError) {
-      console.warn('Sheets mirror sendBeacon failed:', beaconError);
-    }
-    return false;
-  }
+  console.error('All submission attempts failed; data retained in localStorage only.');
+  return false;
 }
 
 // ===== NAVIGATION =====
 function goToScreen(idx) {
-  // Start survey timer when leaving orientation (entering first matchup)
+  // Start survey timer when leaving orientation (entering the matchup)
   if (idx === 2 && !surveyData.startTime) surveyData.startTime = Date.now();
 
   // Set up Prolific completion screen
-  if (idx === 4) {
+  if (idx === 3) {
     document.getElementById('completion-code').textContent = COMPLETION_CODE;
     document.getElementById('prolific-return-btn').href = PROLIFIC_RETURN_URL;
   }
@@ -1169,21 +1000,17 @@ function goToScreen(idx) {
     void nxt.offsetWidth;
     nxt.classList.add('visible');
 
-    // Progress bar: 0% on screens 0-1, then 50%/100% on matchups and completion
+    // Progress bar: 0% on 0-1, 50% on matchup, 100% on completion
     let progress = 0;
-    if (idx >= 2 && idx <= 3) {
-      progress = ((idx - 1) / 2) * 100;
-    } else if (idx === 4) {
-      progress = 100;
-    }
+    if (idx === 2) progress = 50;
+    else if (idx === 3) progress = 100;
     document.getElementById('progressBar').style.width = progress + '%';
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Start view timer for Advert A when matchup screen becomes visible
-    if (idx >= 2 && idx <= 3) {
-      const matchIdx = idx - 2;
-      startViewTimer(matchIdx, 'a');
+    if (idx === 2) {
+      startViewTimer(0, 'a');
     }
   }, 180);
 }
@@ -1201,8 +1028,9 @@ function closeLightbox() {
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
 // ===== INIT =====
+buildMatchups();
 setTimeout(() => document.getElementById('screen-0').classList.add('visible'), 50);
-console.log('Wave 4 Christmas survey | Brand:', BRAND);
+console.log('Survey 3 v1 (quality awards) | Brand:', BRAND, '| Pair index:', pairIndex, '| Matchup: [A:' + concepts[matchup.a].label + ' vs B:' + concepts[matchup.b].label + ']');
 </script>
 </body>
 </html>
