@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Christmas Campaign Survey</title>
+<title>New Year 2027 Campaign Survey</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -445,17 +445,14 @@ h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
   <div class="screen" id="screen-1">
     <h1>Help choose an advert</h1>
     <p class="subtitle" style="font-weight: 600; color: var(--text);">
-      A major homebuilder is launching a campaign this autumn. The adverts are aimed at people who might be interested in buying a new-build home, and are designed to get them to register their interest now so they could be moved in before Christmas. They have several designs and need to know which one works best. That's where you come in.
+      A major homebuilder is preparing a New Year campaign. The adverts are aimed at people who might be interested in buying a new-build home in 2027. They have several creative approaches and need to know which one works best. That's where you come in.
     </p>
-    <p class="subtitle" style="font-weight: 600; color: var(--text);">
-      One thing worth knowing as you look at them: buying a new-build home is usually quicker than buying an ordinary second-hand home, because there's no chain of buyers and sellers to wait for. A new-build move can often complete in around two months, where a purchase with a chain typically takes many months.
-    </p>
-    <p class="subtitle" style="margin-top:-8px;">With that in mind:</p>
+    <p class="subtitle" style="margin-top:-8px;">As you review them:</p>
     <ul class="intro-list">
-      <li>You'll see <strong>2 pairs</strong> of adverts</li>
+      <li>You'll see <strong>one pair</strong> of adverts</li>
       <li>Each advert has several panels &mdash; <strong>please look at the images, text, and how they work together</strong></li>
       <li>In reality these would appear as a short animation (GIF), but here they're shown as a series of images so you can view each step clearly</li>
-      <li>For each pair, you'll rate both adverts and pick which one you think is <strong>more effective</strong></li>
+      <li>You'll rate both adverts and pick which one you think is <strong>more effective</strong></li>
       <li>There are no right or wrong answers</li>
     </ul>
     <p class="subtitle" style="font-size:0.88rem; margin-top: -8px;">
@@ -464,12 +461,11 @@ h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 6px; }
     <button class="btn btn-primary" onclick="goToScreen(2)" style="margin-top: 8px;">Show me the adverts</button>
   </div>
 
-  <!-- Matchup screens built by JS (screens 2 and 3) -->
+  <!-- Matchup screen built by JS (screen 2) -->
   <div class="screen" id="screen-2"></div>
-  <div class="screen" id="screen-3"></div>
 
-  <!-- Screen 4: Completion -->
-  <div class="screen" id="screen-4">
+  <!-- Screen 3: Completion -->
+  <div class="screen" id="screen-3">
     <h1>Thank you!</h1>
     <div class="completion-card">
       <p class="subtitle" style="text-align: center; margin-bottom: 12px;">Your responses have been recorded. We really appreciate your time.</p>
@@ -496,22 +492,23 @@ const BRAND = 'RR';
 const BRAND_NAME = 'Redrow';
 const COMPLETION_CODE = 'C2824KYD';
 const PROLIFIC_RETURN_URL = 'https://app.prolific.com/submissions/complete?cc=' + COMPLETION_CODE;
-const API_URL = 'https://api.housebuilder-survey.co.uk';
-const MIRROR_URL = 'https://script.google.com/macros/s/AKfycbw9uMvCSU3ciQALFHBGB2u7_iKlO2P-666ep4evOvSZ6kyPs94F0gKxYdn1plmgVdLnNw/exec';
-const SCHEMA_VERSION = 'wave4-v1';
+const API_URL = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+  ? 'http://127.0.0.1:8787'
+  : 'https://api.housebuilder-survey.co.uk';
+const MIRROR_URL = 'REPLACE_WAVE5_MIRROR_URL';
+const SCHEMA_VERSION = 'wave5-v1';
 
 // ===== DATA =====
 const concepts = [
-  { id: 0, label: 'Creative 1', idea: "A new Redrow home makes Christmas", image: 'images/creative-1.png' },
-  { id: 1, label: 'Creative 2', idea: "Built for traditions", image: 'images/creative-2.png' },
-  { id: 2, label: 'Creative 3', idea: "Christmas stories", image: 'images/creative-3.png' },
-  { id: 3, label: 'Creative 4', idea: "Christmas. Only better", image: 'images/creative-4.png' }
+  { id: 0, label: 'Creative 1', idea: 'Years of living better. Yours with Redrow', image: 'images/creative-1.png' },
+  { id: 1, label: 'Creative 2', idea: 'Make 2027 the year you choose confidently', image: 'images/creative-2.png' },
+  { id: 2, label: 'Creative 3', idea: '2027. Better your home. Better your lifestyle', image: 'images/creative-3.png' }
 ];
 
 const LIKERT_ITEMS = [
   { key: 'eyecatching', label: 'This advert is eye-catching' },
   { key: 'clear', label: 'This advert is easy to understand' },
-  { key: 'realistic', label: 'This advert makes moving into a new home soon seem realistic' }
+  { key: 'newyear', label: 'This advert makes the start of 2027 feel like a good time to move to a new home' }
 ];
 
 const LIKERT_SCALE = [
@@ -524,9 +521,9 @@ const LIKERT_SCALE = [
 
 // ===== ROUND-ROBIN ROTATIONS =====
 const rotationVersions = [
-  [{ a: 0, b: 1, rotationPairSlot: 1 }, { a: 2, b: 3, rotationPairSlot: 2 }],
-  [{ a: 0, b: 2, rotationPairSlot: 1 }, { a: 1, b: 3, rotationPairSlot: 2 }],
-  [{ a: 0, b: 3, rotationPairSlot: 1 }, { a: 1, b: 2, rotationPairSlot: 2 }]
+  [{ a: 0, b: 1, rotationPairSlot: 1 }],
+  [{ a: 0, b: 2, rotationPairSlot: 1 }],
+  [{ a: 1, b: 2, rotationPairSlot: 1 }]
 ];
 
 let matchups = [];
@@ -552,11 +549,11 @@ const surveyData = {
 let currentScreen = 0;
 let assignmentInProgress = false;
 const finishingMatchups = new Set();
-const TOTAL_SCREENS = 5; // 0=ID, 1=Orientation, 2-3=Matchups, 4=Completion
+const TOTAL_SCREENS = 4; // 0=ID, 1=Orientation, 2=Matchup, 3=Completion
 
 // Per-matchup step state
 const stepState = {};
-// Track Likert answers: likertAnswers[matchIdx-side] = { eyecatching: 5, clear: null, realistic: null }
+// Track Likert answers: likertAnswers[matchIdx-side] = { eyecatching: 5, clear: null, newyear: null }
 const likertAnswers = {};
 
 // ===== PER-CONCEPT TIMING =====
@@ -775,7 +772,7 @@ function buildLikertBlock(matchIdx, side) {
       <button class="btn-confirm" onclick="confirmGate(${matchIdx},'${side}')">Rate this advert &rarr;</button>
     </div>
     <div class="likert-block gated" id="likert-${matchIdx}-${side}">
-      <div class="likert-heading">How well does each statement describe this advert?</div>
+      <div class="likert-heading">How much do you agree or disagree with each statement?</div>
       ${rows}
     </div>`;
 }
@@ -788,11 +785,11 @@ function buildMatchups() {
     initLikert(i, 'b');
     const cA = concepts[m.a];
     const cB = concepts[m.b];
-    const screenIdx = i + 2; // Matchup screens are 2 and 3
+    const screenIdx = i + 2; // The single matchup is screen 2
     const el = document.getElementById(`screen-${screenIdx}`);
 
     el.innerHTML = `
-      <div class="step-pill">Pair ${i + 1} of 2</div>
+      <div class="step-pill">Pair ${i + 1} of ${matchups.length}</div>
 
       <!-- ===== ADVERT A ===== -->
       <div class="concept-card" id="card-${i}-a">
@@ -842,7 +839,7 @@ function buildMatchups() {
       <div class="step-reveal" id="reveal-choice-${i}">
         <div class="choice-section">
           <p class="choice-heading">
-            Overall, which of these two adverts is more effective at getting someone to register their interest in a home they could move into by Christmas?
+            Overall, which of these two adverts is more effective at encouraging someone to take the next step towards moving to a new home in 2027?
           </p>
           <p class="choice-hint">Scroll up if you need a reminder of both.</p>
           <div class="choice-btns" id="choice-btns-${i}">
@@ -859,7 +856,7 @@ function buildMatchups() {
           <textarea id="reason-${i}" placeholder="There are no wrong answers \u2014 just say what came to mind..." rows="3"></textarea>
           <div class="next-row">
             <span class="validation-msg" id="val-open-${i}">Please write at least a few words.</span>
-            <button class="btn btn-primary" onclick="finishMatchup(${i}, this)">${i < 1 ? 'Next pair \u2192' : 'Finish \u2192'}</button>
+            <button class="btn btn-primary" onclick="finishMatchup(${i}, this)">${i < matchups.length - 1 ? 'Next pair \u2192' : 'Finish \u2192'}</button>
           </div>
         </div>
       </div>
@@ -888,11 +885,12 @@ function revealNext(matchIdx) {
     // Stage 2: After a visible pause, reveal Advert B
     setTimeout(() => {
       const revealB = document.getElementById(`reveal-b-${matchIdx}`);
+      // Start timing before the card becomes clickable. This prevents a very
+      // fast respondent from confirming B before its timer exists.
+      startViewTimer(matchIdx, 'b');
       revealB.classList.add('revealed');
 
-      // Start view timer for B once it's revealed + transition done
       setTimeout(() => {
-        startViewTimer(matchIdx, 'b');
         revealB.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 300);
     }, 1200);
@@ -1008,6 +1006,7 @@ async function finishMatchup(matchIdx, button) {
 
   const wordCount = reason.split(/\s+/).filter(w => w.length > 0).length;
   if (wordCount < 2) {
+    valMsg.textContent = 'Please write at least a few words.';
     valMsg.classList.add('show');
     document.getElementById(`reason-${matchIdx}`).focus();
     return;
@@ -1019,7 +1018,7 @@ async function finishMatchup(matchIdx, button) {
   finishingMatchups.add(matchIdx);
   button.disabled = true;
   button.setAttribute('aria-busy', 'true');
-  button.textContent = matchIdx < 1 ? 'Loading next pair…' : 'Finishing…';
+  button.textContent = matchIdx < matchups.length - 1 ? 'Loading next pair…' : 'Finishing…';
 
   // Store reason
   if (surveyData.matchups[matchIdx]) surveyData.matchups[matchIdx].reason = reason;
@@ -1037,8 +1036,8 @@ async function finishMatchup(matchIdx, button) {
   const vtA = viewTimers[`${matchIdx}-a`];
   const vtB = viewTimers[`${matchIdx}-b`];
   surveyData.matchups[matchIdx].viewTime = {};
-  if (vtA) surveyData.matchups[matchIdx].viewTime[m.a] = vtA.elapsed;
-  if (vtB) surveyData.matchups[matchIdx].viewTime[m.b] = vtB.elapsed;
+  surveyData.matchups[matchIdx].viewTime[m.a] = Number.isFinite(vtA?.elapsed) ? vtA.elapsed : 0;
+  surveyData.matchups[matchIdx].viewTime[m.b] = Number.isFinite(vtB?.elapsed) ? vtB.elapsed : 0;
 
   // Restructure likert data for Sheets (concept-id-keyed → A/B-keyed)
   surveyData.matchups[matchIdx].likertA = surveyData.matchups[matchIdx].likert[m.a] || {};
@@ -1048,23 +1047,33 @@ async function finishMatchup(matchIdx, button) {
   surveyData.matchupsCompleted = matchIdx + 1;
 
   // If this is the last matchup, set endTime and totalSeconds
-  if (matchIdx === 1) {
+  if (matchIdx === matchups.length - 1) {
     surveyData.endTime = Date.now();
     surveyData.totalSeconds = Math.round((surveyData.endTime - surveyData.startTime) / 1000);
   }
 
-  // Submit data progressively. Await delivery briefly, as in Wave 3, without
+  // Submit the completed comparison. Await delivery briefly without
   // trapping the respondent if their network is slow.
-  await Promise.race([
+  const submissionAccepted = await Promise.race([
     submitData(),
-    new Promise(resolve => setTimeout(resolve, 4500))
+    new Promise(resolve => setTimeout(() => resolve(false), 6000))
   ]);
 
+  if (!submissionAccepted) {
+    valMsg.textContent = 'We could not record your responses. Please check your connection and try again.';
+    valMsg.classList.add('show');
+    button.disabled = false;
+    button.removeAttribute('aria-busy');
+    button.textContent = 'Try finishing again \u2192';
+    finishingMatchups.delete(matchIdx);
+    return;
+  }
+
   // Navigate
-  if (matchIdx < 1) {
-    goToScreen(3);
+  if (matchIdx < matchups.length - 1) {
+    goToScreen(matchIdx + 3);
   } else {
-    goToScreen(4); // Completion
+    goToScreen(3); // Completion
     console.log('=== SURVEY COMPLETE ===');
     console.log('Rotation version:', surveyData.rotationVersion);
     console.log('Time:', surveyData.totalSeconds + 's');
@@ -1083,7 +1092,7 @@ async function submitData() {
   console.log(payload);
 
   try {
-    localStorage.setItem('wave4_' + BRAND + '_' + surveyData.participantId + '_' + surveyData.matchupsCompleted, payload);
+    localStorage.setItem('wave5_' + BRAND + '_' + surveyData.participantId + '_' + surveyData.matchupsCompleted, payload);
   } catch (error) {
     console.warn('Local backup unavailable:', error);
   }
@@ -1105,7 +1114,14 @@ async function submitPrimary(payload) {
         body: payload
       }, 2000);
       const body = await response.json();
-      if (!response.ok || body.status !== 'ok') throw new Error(body.message || 'Submission rejected.');
+      if (!response.ok || body.status !== 'ok') {
+        const message = body.message || 'Submission rejected.';
+        if (response.status >= 400 && response.status < 500) {
+          console.error('Primary submission was rejected:', message);
+          return false;
+        }
+        throw new Error(message);
+      }
       console.log('Primary submission accepted (attempt ' + attempt + ').');
       return true;
     } catch (error) {
@@ -1157,7 +1173,7 @@ function goToScreen(idx) {
   if (idx === 2 && !surveyData.startTime) surveyData.startTime = Date.now();
 
   // Set up Prolific completion screen
-  if (idx === 4) {
+  if (idx === 3) {
     document.getElementById('completion-code').textContent = COMPLETION_CODE;
     document.getElementById('prolific-return-btn').href = PROLIFIC_RETURN_URL;
   }
@@ -1172,20 +1188,17 @@ function goToScreen(idx) {
     void nxt.offsetWidth;
     nxt.classList.add('visible');
 
-    // Progress bar: 0% on screens 0-1, then 50%/100% on matchups and completion
+    // Progress bar: 0% on introduction, 50% during the comparison, 100% on completion
     let progress = 0;
-    if (idx >= 2 && idx <= 3) {
-      progress = ((idx - 1) / 2) * 100;
-    } else if (idx === 4) {
-      progress = 100;
-    }
+    if (idx === 2) progress = 50;
+    if (idx === 3) progress = 100;
     document.getElementById('progressBar').style.width = progress + '%';
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Start view timer for Advert A when matchup screen becomes visible
-    if (idx >= 2 && idx <= 3) {
-      const matchIdx = idx - 2;
+    if (idx === 2) {
+      const matchIdx = 0;
       startViewTimer(matchIdx, 'a');
     }
   }, 180);
@@ -1205,7 +1218,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbo
 
 // ===== INIT =====
 setTimeout(() => document.getElementById('screen-0').classList.add('visible'), 50);
-console.log('Wave 4 Christmas survey | Brand:', BRAND);
+console.log('Wave 5 New Year 2027 survey | Brand:', BRAND);
 </script>
 </body>
 </html>
